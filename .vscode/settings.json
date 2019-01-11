@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.osx": {
+        "PATH": "/Users/luke/.platformio/penv/bin:/Users/luke/.platformio/penv:/usr/local/opt/openssl/bin:/usr/local/opt/llvm/bin:/Users/luke/anaconda3/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        "PLATFORMIO_CALLER": "vscode"
+    }
+}
