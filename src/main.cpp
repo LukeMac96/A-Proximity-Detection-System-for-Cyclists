@@ -19,10 +19,21 @@ void setup() {
 
   Serial.begin(9600);
 
+  duration = pulseIn(echoPin, HIGH);
 }
 
 void loop() {
 
+  USRead();
+  delay(2);
+
+  irread();
+
+  delay(3000);
+}
+
+void USRead(){
+  int averagingUS =0;
 
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -31,14 +42,7 @@ void loop() {
   delayMicroseconds(2);
   digitalWrite(trigPin, LOW);
 
-  duration = pulseIn(echoPin, HIGH);
-  USdistance = (usread());
-  IRdistance = irread();
-
-}
-
-int usread(){
-  int averagingUS =0;
+  
   
   //Loop for reading in values
   for(int j=0; j<5; j++){
@@ -55,7 +59,7 @@ int usread(){
 
 }
 
-int irread(){
+void irread(){
   int averaging =0;
   int div = 10;
   //Loop for reading in values
@@ -77,5 +81,4 @@ int irread(){
   Serial.print("Average IR distance: ");
   Serial.println(IRdistance);
   delayMicroseconds(1000);
-
 }
