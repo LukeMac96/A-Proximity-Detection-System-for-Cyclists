@@ -27,11 +27,53 @@ void loop() {
 
   duration = pulseIn(echoPin, HIGH);
   USdistance = (usread());
+  IRdistance = irread();
+  
 
 
 }
 
 int usread(){
-  int averaging
+  int averagingUS =0;
+
+  for(int j=0; j<5; j++){
+
+    USdistance = (duration*0.034)/2;
+    averagingUS = averagingUS+ USdistance;
+
+  }
+  USdistance= averagingUS/5;
+  Serial.print("US Distance= ");
+  Serial.print(USdistance);
+  Serial.println("cm  ");
+  delay(5);
+
+
+
+
+}
+
+int irread(){
+  int averaging =0;
+  int div = 10;
+  //Loop for reading in values
+  for(int i=0; i<10; i++){
+
+    //Read voltage on IRsense, A0 pin
+    IRdistance = analogRead(irsense);
+
+    //Summing current reading with previous
+    averaging= averaging + IRdistance;
+    Serial.print("Reading: ");
+    Serial.print(i);
+    Serial.println("IR Distance");
+    delayMicroseconds(3000);
+
+  }
+  //
+  IRdistance = averaging/div;
+  Serial.print("Average IR distance: ");
+  Serial.println(IRdistance);
+  delayMicroseconds(1000);
 
 }
