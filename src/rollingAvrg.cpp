@@ -29,6 +29,7 @@ void loop() {
 
     total = total - readings[readIndex];
 
+//Sensor read.
     readings[readIndex] = analogRead(irsense);
     total = total +readings[readIndex];
     readIndex = readIndex +1;

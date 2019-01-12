@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+//Dual sensor Code.
+//12/01/2019.
+
 const int irsense = A0;
 int IRdistance =0;
 
@@ -8,15 +11,18 @@ const int echoPin =10;
 int USdistance =0;
 long duration;
 
+
+
 void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
   Serial.begin(9600);
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
 
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -28,14 +34,13 @@ void loop() {
   duration = pulseIn(echoPin, HIGH);
   USdistance = (usread());
   IRdistance = irread();
-  
-
 
 }
 
 int usread(){
   int averagingUS =0;
-
+  
+  //Loop for reading in values
   for(int j=0; j<5; j++){
 
     USdistance = (duration*0.034)/2;
@@ -47,9 +52,6 @@ int usread(){
   Serial.print(USdistance);
   Serial.println("cm  ");
   delay(5);
-
-
-
 
 }
 
