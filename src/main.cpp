@@ -9,8 +9,7 @@ int IRdistance =0;
 const int trigPin =9;
 const int echoPin =10;
 int USdistance =0;
-long duration;
-
+long duration =  pulseIn(echoPin, HIGH);
 
 
 void setup() {
@@ -19,17 +18,7 @@ void setup() {
 
   Serial.begin(9600);
 
-  duration = pulseIn(echoPin, HIGH);
-}
-
-void loop() {
-
-  USRead();
-  delay(2);
-
-  irread();
-
-  delay(3000);
+  
 }
 
 void USRead(){
@@ -54,7 +43,7 @@ void USRead(){
   USdistance= averagingUS/5;
   Serial.print("US Distance= ");
   Serial.print(USdistance);
-  Serial.println("cm  ");
+  Serial.println(" cm  ");
   delay(5);
 
 }
@@ -72,7 +61,7 @@ void irread(){
     averaging= averaging + IRdistance;
     Serial.print("Reading: ");
     Serial.print(i);
-    Serial.println("IR Distance");
+    Serial.println("  IR Distance");
     delayMicroseconds(3000);
 
   }
@@ -82,3 +71,18 @@ void irread(){
   Serial.println(IRdistance);
   delayMicroseconds(1000);
 }
+
+void loop() {
+
+//USRead() -- was not declared in this scope
+  USRead();
+  delay(2);
+//irread() -- was not declared in this scope
+
+  irread();
+
+  delay(3000);
+}
+
+
+
