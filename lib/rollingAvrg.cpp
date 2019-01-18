@@ -42,7 +42,11 @@ void loop() {
 //Calculate Average
   average = total/numReadings;
 
-  Serial.println(average);
-    delay(1);
+  Serial.print("Distance = ");
+  Serial.print(average);
+  Serial.println(" cm.");
+
+  //delay to simulate other operations.
+    delay(100);
 
 }
