@@ -8,10 +8,17 @@ class USsensor{
 
     public:
         USsensor(int trigpin, int echopin);
-        
         void Trigger();
+        int USread();
 
-        //int USread(int echopin);
+    private:
+        int Tpin;
+        int Epin;
+        int duration;
+        int USdistance;
+
+
+        
 
 
 
