@@ -1,36 +1,36 @@
 #include <Arduino.h>
 #include <USsensor.h>
 
-int Tpin;
-int Epin;
+int _trigpin;
+int _echopin;
 int duration;
-int USdistance;
+//int USdistance;
 
 USsensor::USsensor(int trigpin, int echopin){
 
     pinMode(trigpin, OUTPUT);
     pinMode(echopin, INPUT);
-    Tpin = trigpin;
-    Epin = echopin;
+    _trigpin = trigpin;
+    _echopin = echopin;
 
 };
 
 
 void USsensor::Trigger()
 {
-    digitalWrite(Tpin, LOW);
+    digitalWrite(_trigpin, LOW);
     delayMicroseconds(2);
 
-    digitalWrite(Tpin, HIGH);
+    digitalWrite(_trigpin, HIGH);
     delayMicroseconds(10);
 
-    digitalWrite(Tpin, LOW);
+    digitalWrite(_trigpin, LOW);
     
 }
 
 int USsensor::USread()
 {
-    duration = pulseIn(Epin, HIGH);
+    duration = pulseIn(_echopin, HIGH);
     USdistance = duration*0.034/2;
 
     return USdistance;

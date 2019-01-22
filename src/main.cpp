@@ -11,7 +11,7 @@ int IRdistance =0;
 //const int trigPin =9;
 //const int echoPin =10;
 
-USsensor US1(9, 10);     //Instantiate USsensor class, define pin numbers.
+USsensor US1(10, 9);     //Instantiate USsensor class, define pin numbers.
 
 
 int USdistance =0;
@@ -23,9 +23,8 @@ void setup() {
   //pinMode(echoPin, INPUT);
 
   Serial.begin(9600);
-
-  
 }
+
 
 void loop() {
 

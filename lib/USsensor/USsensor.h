@@ -12,8 +12,8 @@ class USsensor{
         int USread();
 
     private:
-        int Tpin;
-        int Epin;
+        int _trigpin;
+        int _echopin;
         int duration;
         int USdistance;
 
@@ -24,8 +24,4 @@ class USsensor{
 
 
 };
-
-
-
-
 #endif
