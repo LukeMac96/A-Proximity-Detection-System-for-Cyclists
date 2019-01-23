@@ -1,17 +1,21 @@
 #include <Arduino.h>
 #include <USsensor.h>
+#include <IRsensor.h>
+
 
 
 //Dual sensor Code.
 //12/01/2019.
 
 const int irsense = A0;
-int IRdistance =0;
+//int IRdistance =0;
 
 //const int trigPin =9;
 //const int echoPin =10;
 
 USsensor US1(10, 2);     //Instantiate USsensor class, define pin numbers.
+IRsensor IR1(A0);
+
 
 
 int USdistance =0;
@@ -29,8 +33,10 @@ void setup() {
 void loop() {
 
   US1.Trigger();   //Call function to trigger US pin 9.
+  delayMicroseconds(500);
   US1.USread();     //Call function to Read value from US, pin 10.    
-
+  delayMicroseconds(500);
+  IR1.readIR();
 }
 
 

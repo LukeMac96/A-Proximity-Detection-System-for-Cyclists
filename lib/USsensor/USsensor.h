@@ -1,6 +1,6 @@
 
 #ifndef USsensor_h
-#define Ussensor_h
+#define USsensor_h
 
 #include "Arduino.h"
 
@@ -16,12 +16,6 @@ class USsensor{
         int _echopin;
         int duration;
         int USdistance;
-
-
-        
-
-
-
 
 };
 #endif
