@@ -4,7 +4,7 @@
 int _trigpin;
 int _echopin;
 int duration;
-//int USdistance;
+int USdistance;
 
 USsensor::USsensor(int trigpin, int echopin){
 

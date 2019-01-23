@@ -4,21 +4,19 @@
 
 
 
-//Dual sensor Code.
-//12/01/2019.
+//Project Library Main
+//23/01/2019.
 
-const int irsense = A0;
-//int IRdistance =0;
-
+//Pin Layout
+//const int irsense = A0;
 //const int trigPin =9;
-//const int echoPin =10;
+//const int echoPin =2;
 
 USsensor US1(10, 2);     //Instantiate USsensor class, define pin numbers.
-IRsensor IR1(A0);
+IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 
 
-
-int USdistance =0;
+//int USdistance =0;
 //long duration =  pulseIn(echoPin, HIGH);
 
 
@@ -32,11 +30,21 @@ void setup() {
 
 void loop() {
 
-  US1.Trigger();   //Call function to trigger US pin 9.
+  /*US1.Trigger();   //Call function to trigger US pin 9.
   delayMicroseconds(500);
-  US1.USread();     //Call function to Read value from US, pin 10.    
+  US1.USread();     //Call function to Read value from US, pin 2.    
   delayMicroseconds(500);
-  IR1.readIR();
+  IR1.readIR();*/
+
+  US1.Trigger();
+  delayMicroseconds(10);
+  Serial.print("US distance:  ");
+  Serial.println(US1.USread());
+  delayMicroseconds(2000);
+
+  Serial.print("IR distance:  ");
+  Serial.println(IR1.readIR());
+  delayMicroseconds(2000);
 }
 
 
