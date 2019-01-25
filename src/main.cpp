@@ -9,10 +9,10 @@
 
 //Pin Layout
 //const int irsense = A0;
-//const int trigPin =9;
+//const int trigPin =3;
 //const int echoPin =2;
 
-USsensor US1(10, 2);     //Instantiate USsensor class, define pin numbers.
+USsensor US1(3, 2);     //Instantiate USsensor class, define pin numbers.
 IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 
 
@@ -30,17 +30,20 @@ void setup() {
 
 void loop() {
 
-  /*US1.Trigger();   //Call function to trigger US pin 9.
+  /*US1.Trigger();   //Call function to trigger US pin 3(Yellow).
   delayMicroseconds(500);
-  US1.USread();     //Call function to Read value from US, pin 2.    
+  US1.USread();     //Call function to Read value from US, pin 2(Blue).    
   delayMicroseconds(500);
   IR1.readIR();*/
 
-  US1.Trigger();
+  /*US1.Trigger();
   delayMicroseconds(10);
   Serial.print("US distance:  ");
   Serial.println(US1.USread());
-  delayMicroseconds(2000);
+  delayMicroseconds(2000);*/
+  Serial.print("US distance:  ");
+  Serial.println(US1.Tread());
+  delayMicroseconds(200);
 
   Serial.print("IR distance:  ");
   Serial.println(IR1.readIR());

@@ -10,6 +10,7 @@ class USsensor{
         USsensor(int trigpin, int echopin);
         void Trigger();
         int USread();
+        int Tread();
 
     private:
         int _trigpin;

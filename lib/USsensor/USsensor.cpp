@@ -37,5 +37,20 @@ int USsensor::USread()
 
 }
 
+int USsensor::Tread()
+{
+    digitalWrite(_trigpin, LOW);
+    delayMicroseconds(2);
+
+    digitalWrite(_trigpin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(_trigpin, LOW);
+    
+    duration = pulseIn(_echopin, HIGH);
+    USdistance = duration*0.034/2;
+
+    return USdistance;
+}
+
 
 
