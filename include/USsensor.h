@@ -1,5 +1,5 @@
 
-#ifndef USsensor_h
+#ifndef include.USsensor_h
 #define USsensor_h
 
 #include "Arduino.h"
