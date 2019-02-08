@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <USsensor.h>
 #include <IRsensor.h>
-//#include <QueueList.h>
+#include <QueueArray.h>
 
 
 
@@ -12,6 +12,10 @@
 //const int irsense = A0;
 //const int trigPin =3;
 //const int echoPin =2;
+
+QueueArray<int> queue1;
+
+
 
 USsensor US1(3, 2);     //Instantiate USsensor class, define pin numbers.
 IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
@@ -37,9 +41,11 @@ void loop() {
           US1.USread();     //Call function to Read value from US, pin 2(Blue).    
           delayMicroseconds(500);
           IR1.readIR();*/
-  US1.Smoothing();
+      // US1.Smoothing();
   
-  if(B1flag = true){
+  while(queue1.isEmpty = true){
+
+    int dequeue(US1.Tread());
 
 
 
