@@ -2,6 +2,8 @@
 #include <USsensor.h>
 #include <IRsensor.h>
 #include <QueueArray.h>
+#include <RunningAverage.h>
+
 
 
 
@@ -15,12 +17,18 @@
 
 QueueArray<int> queue1;
 
+//Running Average Library, used for Buffer implementation.
+RunningAverage myRA(10);
+uint32_t samples = 0;
+ 
+
+
 
 
 USsensor US1(3, 2);     //Instantiate USsensor class, define pin numbers.
 IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 
-volatile bool B1flag;
+volatile bool US1flag;
 
 //int USdistance =0;
 //long duration =  pulseIn(echoPin, HIGH);
@@ -31,6 +39,7 @@ void setup() {
   //pinMode(echoPin, INPUT);
 
   Serial.begin(9600);
+  myRA.clear();
 }
 
 
@@ -43,13 +52,11 @@ void loop() {
           IR1.readIR();*/
       // US1.Smoothing();
   
-  while(queue1.isEmpty = true){
+  
+  myRA.addValue(US1.Tread());
+  samples++;
 
-    int dequeue(US1.Tread());
-
-
-
-  }
+  
 
  
   Serial.println(millis());
