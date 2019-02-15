@@ -4,109 +4,113 @@
 #include <QueueArray.h>
 #include <RunningAverage.h>
 
-
-
-
 //Project Library Main
-//23/01/2019.
+//15/02/2019.
+
 
 //Pin Layout
 //const int irsense = A0;
 //const int trigPin =3;
 //const int echoPin =2;
 
-QueueArray<int> queue1;
 
 //Running Average Library, used for Buffer implementation.
-RunningAverage myRA(10);
+RunningAverage myRA_a(10);
+RunningAverage myRA_b(10);
+RunningAverage myRA_a1(10);
+RunningAverage myRA_b1(10);
 uint32_t samples = 0;
+uint32_t samples2 = 0;
  
-
-
-
-
-USsensor US1(3, 2);     //Instantiate USsensor class, define pin numbers.
+USsensor US1(11, 12);     //Instantiate USsensor class, define pin numbers.
 IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 
-volatile bool US1flag;
+volatile bool ReadSensorsFlag;
+int WarningInterruptpin = 2; 
 
-//int USdistance =0;
-//long duration =  pulseIn(echoPin, HIGH);
+float AvrUS; 
+float AvrIR;
+float Threshold;
+
 
 
 void setup() {
-  //pinMode(trigPin, OUTPUT);     pinMode() call happens inside library USsensor.cpp
-  //pinMode(echoPin, INPUT);
-
+  pinMode(WarningInterruptpin, OUTPUT);
+  digitalWrite(WarningInterruptpin, LOW);
+  attachInterrupt(digitalPinToInterrupt(2), UserWarning ,HIGH);
+  
   Serial.begin(9600);
-  myRA.clear();
+  myRA_a.clear();
+  myRA_b.clear();
+  myRA_a1.clear();
+  myRA_b1.clear();
 }
 
 
-void loop() {
+void loop() 
+{
 
-          /*US1.Trigger();   //Call function to trigger US pin 3(Yellow).
-          delayMicroseconds(500);
-          US1.USread();     //Call function to Read value from US, pin 2(Blue).    
-          delayMicroseconds(500);
-          IR1.readIR();*/
-      // US1.Smoothing();
-  
-  
-  myRA.addValue(US1.Tread());
+  if(AvrIR > Threshold || AvrUS > Threshold){
+    //Get Time
+    //If values are greater than Threshold for more than X amount of time trigger the ISR.
+    //for loop?
+    digitalWrite(WarningInterruptpin, HIGH);
+  }
+
+
+
+
+  if(ReadSensorsFlag == true){
+    AvrUS = myRA_a1.getAverage();
+    AvrIR  = myRA_b1.getAverage();
+    FirstQueue(); 
+  }
+  else{
+    AvrUS = myRA_a.getAverage();
+    AvrIR  = myRA_b.getAverage();
+    SecondQueue();
+  }
+}
+
+
+
+
+
+
+void FirstQueue(){
+
+  myRA_a.addValue(US1.Tread());
+  myRA_b.addValue(IR1.readIR());
   samples++;
 
-  
+  if(samples == 20){
+    samples = 0;
+    myRA_a.clear();
+    myRA_b.clear();
 
- 
-  Serial.println(millis());
-  Serial.print("US distance:  ");
-  Serial.println(US1.Tread());
-  Serial.println(millis());
+    ReadSensorsFlag = false;
+  }
 
-  delay(199);
+}
+void SecondQueue(){
 
-  
+  myRA_a1.addValue(US1.Tread());
+  myRA_b1.addValue(IR1.readIR());
+  samples2++;
+
+  if (samples2 == 20){
+    samples2 = 0;
+    myRA_a1.clear();
+    myRA_b1.clear();
+
+    ReadSensorsFlag = true;
+  }
 
 }
 
-/* TimingData from millis() US1.Tread()
-0
-US distance:  61
-4
-202
-US distance:  -343
-381
-580
-US distance:  25
-582
-782
-US distance:  -278
-964
-1164
-US distance:  25
-1166
-1366
-US distance:  -304
-1546
-1745
-US distance:  24
-1747
-1947
-US distance:  -291
-2128
-2328
-US distance:  48
-2331
-2531
-US distance:  62
-2535
-2735
-US distance:  63
-2740
-2938
-US distance:  -302
-3120
-*/
 
-
+void UserWarning(){
+  noInterrupts();
+  //Method to warn user.
+  //ISR for Digital Pin 2.
+}
