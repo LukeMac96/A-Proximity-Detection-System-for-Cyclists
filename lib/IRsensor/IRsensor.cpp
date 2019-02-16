@@ -1,9 +1,13 @@
 
 #include <IRsensor.h>
 #include <Arduino.h>
+#include <voltage>
+#include <distance>
 
 int _IRpin;
 int IRdistance;
+extern float voltage[];
+extern float distance[];
 
 IRsensor::IRsensor(int IRpin){
 
@@ -14,7 +18,11 @@ IRsensor::IRsensor(int IRpin){
 
 int IRsensor::readIR(){
 
-    IRdistance = analogRead(_IRpin);
+    float v  = analogRead(_IRpin);
+    v = v/1024.0*5;
+
+    
+
 
 
 

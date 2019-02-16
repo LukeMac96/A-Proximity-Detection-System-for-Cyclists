@@ -4,8 +4,11 @@
 #include <QueueArray.h>
 #include <RunningAverage.h>
 
-//Project Library Main
-//15/02/2019.
+/*Project Library Main
+Luke MacRedmond
+L.MACREDMOND1@nuigalway.ie
+Date of last modification:    15/02/2019.
+*/
 
 
 //Pin Layout
@@ -25,13 +28,20 @@ uint32_t samples2 = 0;
 USsensor US1(11, 12);     //Instantiate USsensor class, define pin numbers.
 IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 
+//Flag determines which RunningAverage queue to store readings in.
 volatile bool ReadSensorsFlag;
+//Sets Digital pin 2 to trigger specific ISR on a HIGH value.
 int WarningInterruptpin = 2; 
 
+//Floats for Average Distance value for both US & IR.
 float AvrUS; 
 float AvrIR;
+//Defines Warning Threshold for warning the User.
 static float Threshold;
-float ThresRange;
+//Variables for ensuring noise spikes dont trigger warning.
+float ThresRange; //Calculated as a fraction of Threshold value???
+float ThresCheckup = Threshold + ThresRange;
+float ThresCheckdn = Threshold - ThresRange;
 
 
 
@@ -48,6 +58,8 @@ void setup() {
   myRA_b.clear();
   myRA_a1.clear();
   myRA_b1.clear();
+
+//-----------------------------------Setup() END.
 }
 
 
@@ -80,7 +92,7 @@ void loop()
 
 
 
-//Loop() END.
+//-----------------------------------Loop() END.
 }
 
 
