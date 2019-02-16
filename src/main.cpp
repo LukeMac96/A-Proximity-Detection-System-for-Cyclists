@@ -30,14 +30,18 @@ int WarningInterruptpin = 2;
 
 float AvrUS; 
 float AvrIR;
-float Threshold;
+static float Threshold;
+float ThresRange;
+
 
 
 
 void setup() {
+  //Interrupt Service Routine 'UserWarning' attached to pin 2, triggers when pin is set High
   pinMode(WarningInterruptpin, OUTPUT);
   digitalWrite(WarningInterruptpin, LOW);
   attachInterrupt(digitalPinToInterrupt(2), UserWarning ,HIGH);
+  SetValues();
   
   Serial.begin(9600);
   myRA_a.clear();
@@ -70,6 +74,13 @@ void loop()
     AvrIR  = myRA_b.getAverage();
     SecondQueue();
   }
+
+
+
+
+
+
+//Loop() END.
 }
 
 
@@ -113,4 +124,13 @@ void UserWarning(){
   noInterrupts();
   //Method to warn user.
   //ISR for Digital Pin 2.
+}
+
+//Method called from Setup(), prompts user to define Distance Thrshold.
+void SetValues(){
+  Serial.println("Input a Threshold range");
+  Threshold = Serial.read();
+  Serial.print("Distance Threshold set to:  ");
+  Serial.print(Threshold);
+  Serial.println("CM.");
 }
