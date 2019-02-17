@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include <USsensor.h>
 #include <IRsensor.h>
+#include <USsensor.h>
 #include <RunningAverage.h>
 
 /*Project Library Main
