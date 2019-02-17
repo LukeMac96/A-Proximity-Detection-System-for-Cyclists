@@ -1,5 +1,5 @@
 
-#ifndef include.IRsensor_h
+#ifndef IRsensor_h
 #define IRsensor_h
 
 #include "Arduino.h"

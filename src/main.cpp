@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <USsensor.h>
 #include <IRsensor.h>
-#include <QueueArray.h>
 #include <RunningAverage.h>
 
 /*Project Library Main
@@ -15,7 +14,7 @@ Date of last modification:    15/02/2019.
 //const int irsense = A0;
 //const int trigPin =3;
 //const int echoPin =2;
-
+const int AudioWarningPin = 6;
 
 //Running Average Library, used for Buffer implementation.
 RunningAverage myRA_a(10);
@@ -31,7 +30,7 @@ IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 //Flag determines which RunningAverage queue to store readings in.
 volatile bool ReadSensorsFlag;
 //Sets Digital pin 2 to trigger specific ISR on a HIGH value.
-int WarningInterruptpin = 2; 
+const int WarningInterruptpin = 2; 
 
 //Floats for Average Distance value for both US & IR.
 float AvrUS; 
@@ -45,7 +44,62 @@ float ThresCheckdn = Threshold - ThresRange;
 
 
 
+void UserWarning(){
+  noInterrupts();
+  //Method to warn user.
+  //ISR for Digital Pin 2.
+  digitalWrite(AudioWarningPin, HIGH);
+}
 
+//Method called from Setup(), prompts user to define Distance Thrshold.
+void SetValues(){
+  Serial.println("Input a Threshold range");
+  Threshold = Serial.read();
+  Serial.print("Distance Threshold set to:  ");
+  Serial.print(Threshold);
+  Serial.println("CM.");
+  ReadSensorsFlag = true;
+}
+
+
+
+
+
+void FirstQueue(){
+
+  myRA_a.addValue(US1.Tread());
+  myRA_b.addValue(IR1.readIR());
+  samples++;
+
+  if(samples >= 20){
+    samples = 0;
+    myRA_a.clear();
+    myRA_b.clear();
+
+    ReadSensorsFlag = false;
+  }
+
+}
+void SecondQueue(){
+
+  myRA_a1.addValue(US1.Tread());
+  myRA_b1.addValue(IR1.readIR());
+  samples2++;
+
+  if (samples2 >= 20){
+    samples2 = 0;
+    myRA_a1.clear();
+    myRA_b1.clear();
+
+    ReadSensorsFlag = true;
+  }
+
+}
+
+
+
+
+//-----------------------------Setup & Loop-------------------------------------------------------
 void setup() {
   //Interrupt Service Routine 'UserWarning' attached to pin 2, triggers when pin is set High
   pinMode(WarningInterruptpin, OUTPUT);
@@ -61,7 +115,6 @@ void setup() {
 
 //-----------------------------------Setup() END.
 }
-
 
 void loop() 
 {
@@ -93,56 +146,4 @@ void loop()
 
 
 //-----------------------------------Loop() END.
-}
-
-
-
-
-
-
-void FirstQueue(){
-
-  myRA_a.addValue(US1.Tread());
-  myRA_b.addValue(IR1.readIR());
-  samples++;
-
-  if(samples == 20){
-    samples = 0;
-    myRA_a.clear();
-    myRA_b.clear();
-
-    ReadSensorsFlag = false;
-  }
-
-}
-void SecondQueue(){
-
-  myRA_a1.addValue(US1.Tread());
-  myRA_b1.addValue(IR1.readIR());
-  samples2++;
-
-  if (samples2 == 20){
-    samples2 = 0;
-    myRA_a1.clear();
-    myRA_b1.clear();
-
-    ReadSensorsFlag = true;
-  }
-
-}
-
-
-void UserWarning(){
-  noInterrupts();
-  //Method to warn user.
-  //ISR for Digital Pin 2.
-}
-
-//Method called from Setup(), prompts user to define Distance Thrshold.
-void SetValues(){
-  Serial.println("Input a Threshold range");
-  Threshold = Serial.read();
-  Serial.print("Distance Threshold set to:  ");
-  Serial.print(Threshold);
-  Serial.println("CM.");
 }
