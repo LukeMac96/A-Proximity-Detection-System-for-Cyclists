@@ -1,8 +1,10 @@
 
 #include <IRsensor.h>
 #include <Arduino.h>
-#include <voltage>
-#include <distance>
+
+#include "/Users/luke/Downloads/Documents/PlatformIO/Projects/FYP/lib/IRsensor/distance.ino"
+#include <voltage.ino>
+
 
 int _IRpin;
 int IRdistance;
