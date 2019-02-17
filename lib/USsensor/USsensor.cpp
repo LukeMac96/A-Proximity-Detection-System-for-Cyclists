@@ -3,8 +3,8 @@
 
 int _trigpin;
 int _echopin;
-int duration;
-int USdistance;
+float duration;
+float USdistance;
 
 USsensor::USsensor(int trigpin, int echopin){
 
@@ -15,7 +15,7 @@ USsensor::USsensor(int trigpin, int echopin){
 
 }
 
-int USsensor::Tread()
+float USsensor::Tread()
 {
     digitalWrite(_trigpin, LOW);
     delayMicroseconds(2);
@@ -23,7 +23,7 @@ int USsensor::Tread()
     digitalWrite(_trigpin, HIGH);
     delayMicroseconds(10);
     digitalWrite(_trigpin, LOW);
-    
+    delayMicroseconds(200);
     duration = pulseIn(_echopin, HIGH);
     USdistance = duration*0.034/2;
 

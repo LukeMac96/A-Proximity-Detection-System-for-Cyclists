@@ -8,15 +8,15 @@ class USsensor{
 
     public:
         USsensor(int trigpin, int echopin);
-        int Smoothing();
+        //int Smoothing();
         
-        int Tread();
+        float Tread();
 
     private:
         int _trigpin;
         int _echopin;
-        int duration;
-        int USdistance;
+        float duration;
+        float USdistance;
 
 };
 #endif

@@ -22,12 +22,12 @@ int IRsensor::readIR(){
     v = v/1024.0*5;
     int index = 0;
 
-    for(index=0; index<49;index++){
-        if(v>=voltage[index]){
+    for(index=0; index<49; index++){
+        if(v >= voltage[index]){
             break;
         }
     }
-    if(index==0){
+    if(index == 0){
         IRdistance = 70;
     }else if(index == 49){
         IRdistance = 550;
