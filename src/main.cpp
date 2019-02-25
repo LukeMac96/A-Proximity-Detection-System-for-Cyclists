@@ -12,8 +12,8 @@ Date of last modification:    17/02/2019.
 
 //Pin Layout
 //const int irsense = A0;
-//const int trigPin =11;
-//const int echoPin =12;
+//const int trigPin =11;   (Yellow)
+//const int echoPin =12;   (Blue)
 const int AudioWarningPin = 6;
 
 //Running Average Library, used for Buffer implementation.
@@ -128,18 +128,21 @@ void loop()
 
   if(ReadSensorsFlag == true){
     for(int i=0; i<12; i++){
-      float USreading = US1.Tread();
+      //float USreading = US1.Tread();
+      float IRAnalog = IR1.AreadIR();
       float IRreading = IR1.readIR();
       Serial.print("IR: ");
       Serial.println(IRreading);
-      Serial.print("US: ");
-      Serial.println(USreading);
-      myRA_a.addValue(USreading);
+      Serial.print("IR Analog Voltage Reading: ");
+      Serial.println(IRAnalog);
       myRA_b.addValue(IRreading);
+      /*Serial.print("US: ");
+      Serial.println(USreading);
+      myRA_a.addValue(USreading);*/
 
     }
 
-    AvrUS = myRA_a.getAverage();  //Changed to myRA_a from myRA_a1.
+    //AvrUS = myRA_a.getAverage();  //Changed to myRA_a from myRA_a1.
     AvrIR  = myRA_b.getAverage();
     //FirstQueue(); 
   }
@@ -163,7 +166,7 @@ void loop()
   Serial.print("Average IR & US:  ");
   Serial.print(AvrIR);
   Serial.print(", ");
-  Serial.println(AvrUS);
+  //Serial.println(AvrUS);
   /*Serial.print("Threshold:  ");
   Serial.println(Threshold);*/
   delay(3000);
