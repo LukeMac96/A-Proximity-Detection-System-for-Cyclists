@@ -8,11 +8,12 @@ class IRsensor{
 
     public:
         IRsensor(int IRpin);
-        int readIR();
+        float readIR();
+        float AreadIR();
 
     private:
         int _IRpin;
-        int IRdistance;
+        float IRdistance;
         
 };
 #endif
