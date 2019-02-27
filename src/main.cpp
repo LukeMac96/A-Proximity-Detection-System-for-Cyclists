@@ -6,7 +6,7 @@
 /*Project Library Main
 Luke MacRedmond
 L.MACREDMOND1@nuigalway.ie
-Date of last modification:    17/02/2019.
+Date of last modification:    26/02/2019.
 */
 
 
@@ -31,6 +31,7 @@ IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 volatile bool ReadSensorsFlag;
 //Sets Digital pin 2 to trigger specific ISR on a HIGH value.
 const int WarningInterruptpin = 2; 
+volatile bool Warningflag = false;
 
 
 //Defines Warning Threshold for warning the User.
@@ -128,21 +129,21 @@ void loop()
 
   if(ReadSensorsFlag == true){
     for(int i=0; i<12; i++){
-      //float USreading = US1.Tread();
-      float IRAnalog = IR1.AreadIR();
+      float USreading = US1.Tread();
+      //float IRAnalog = IR1.AreadIR();
       float IRreading = IR1.readIR();
       Serial.print("IR: ");
       Serial.println(IRreading);
-      Serial.print("IR Analog Voltage Reading: ");
-      Serial.println(IRAnalog);
+      /*Serial.print("IR Analog Voltage Reading: ");
+      Serial.println(IRAnalog);*/
       myRA_b.addValue(IRreading);
-      /*Serial.print("US: ");
+      Serial.print("US: ");
       Serial.println(USreading);
-      myRA_a.addValue(USreading);*/
+      myRA_a.addValue(USreading);
 
     }
 
-    //AvrUS = myRA_a.getAverage();  //Changed to myRA_a from myRA_a1.
+    AvrUS = myRA_a.getAverage();  //Changed to myRA_a from myRA_a1.
     AvrIR  = myRA_b.getAverage();
     //FirstQueue(); 
   }
@@ -153,20 +154,33 @@ void loop()
   }*/
 
 
-  if(AvrIR < Threshold || AvrUS < Threshold){
+  while(AvrIR < Threshold || AvrUS < Threshold){
+    int timer1 = millis();
     //Get Time
     //If values are greater than Threshold for more than X amount of time trigger the ISR.
     //for loop?
-    Serial.println("Distance Threshold Exceeded!!!");
-    digitalWrite(WarningInterruptpin, HIGH);
+    Warningflag = true;
+      //Serial.println("Distance Threshold Exceeded!!!");
+      //digitalWrite(WarningInterruptpin, HIGH);
+    
+    //digitalWrite(WarningInterruptpin, LOW);
 
   }
+  
+  if(Warningflag = true){
+    Serial.println("Distance Threshold Exceeded!!!");
+    digitalWrite(WarningInterruptpin, HIGH);
+  }else{
+    digitalWrite(WarningInterruptpin, LOW);
+  }
+
+  
   
 
   Serial.print("Average IR & US:  ");
   Serial.print(AvrIR);
   Serial.print(", ");
-  //Serial.println(AvrUS);
+  Serial.println(AvrUS);
   /*Serial.print("Threshold:  ");
   Serial.println(Threshold);*/
   delay(3000);
