@@ -129,8 +129,8 @@ float IRsensor::AreadIR(){
 float IRsensor::readIR(){
 
     float v  = analogRead(_IRpin);
-    v = v;//1024.0*5;
-    int index = 0;
+    v = v/1024.0*5.0;
+    //int index = 0;
 
 /* https://github.com/weifengdq/Sharp_GP2Y0A  */
     /*for(index = 0; index < 49; index++){

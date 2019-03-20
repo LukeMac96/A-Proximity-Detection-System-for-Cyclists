@@ -3,10 +3,11 @@
 #include <USsensor.h>
 #include <RunningAverage.h>
 
-/*Project Library Main
+/*
+Project Library Main
 Luke MacRedmond
 L.MACREDMOND1@nuigalway.ie
-Date of last modification:    26/02/2019.
+Date of last modification:    20/03/2019.
 */
 
 
@@ -14,7 +15,8 @@ Date of last modification:    26/02/2019.
 //const int irsense = A0;
 //const int trigPin =11;   (Yellow)
 //const int echoPin =12;   (Blue)
-const int AudioWarningPin = 6;
+//const int BtTx = 1;      (Blue)
+//const int BtRx = 0;      (Yellow)
 
 //Running Average Library, used for Buffer implementation.
 RunningAverage myRA_a(10);
@@ -29,10 +31,12 @@ IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
 
 //Flag determines which RunningAverage queue to store readings in.
 volatile bool ReadSensorsFlag;
-//Sets Digital pin 2 to trigger specific ISR on a HIGH value.
-const int WarningInterruptpin = 2; 
-volatile bool Warningflag = false;
 
+//Sets Digital pin 2 to trigger specific ISR on a HIGH value.
+//Digital pin 6 set to trigger LED/Buzzer Warning.
+const int WarningInterruptpin = 2;    //Unused external pin 
+const int AudioWarningPin = 1;        //Bluetooth module Tx pin(Connects to Nano)
+volatile bool Warningflag = false;
 
 //Defines Warning Threshold for warning the User.
 static float Threshold;
@@ -41,10 +45,10 @@ float ThresRange; //Calculated as a fraction of Threshold value???
 float ThresCheckup = Threshold + ThresRange;
 float ThresCheckdn = Threshold - ThresRange;
 
-
-
 void UserWarning(){
   noInterrupts();
+  
+
   //Method to warn user.
   //ISR for Digital Pin 2.
   digitalWrite(AudioWarningPin, HIGH);
@@ -53,7 +57,8 @@ void UserWarning(){
 //Method called from Setup(), prompts user to define Distance Thrshold.
 void SetValues(){
   //Serial.println("Input a Threshold range");
-  Threshold = 15;
+  Threshold = 60;
+  ThresRange = 20;
   Serial.print("Distance Threshold set to:  ");
   Serial.print(Threshold);
   Serial.println("CM.");
@@ -94,18 +99,47 @@ void SecondQueue(){
   }
 
 }
+/*----------------------------New Method-------------------------------*/
+void CheckwarningFlag(){
+  unsigned long timer1 = millis();
+
+    // if(ThresCheckup>= AvrIR && ThresCheckup>=AvrUS){
+        if((millis()-timer1) > 500){
+          timer1 = millis();
+
+          Warningflag = true;
 
 
+        }else{
+          Warningflag = false;
+        }
+      
+      //Get Time
+      //If values are greater than Threshold for more than X amount of time trigger the ISR.
+      //for loop?
+      //Warningflag = true;
+        //Serial.println("Distance Threshold Exceeded!!!");
+        //digitalWrite(WarningInterruptpin, HIGH);
+      
+      //digitalWrite(WarningInterruptpin, LOW);
+      if(Warningflag == true){
+      Serial.println("Distance Threshold Exceeded!!!");
+      digitalWrite(WarningInterruptpin, HIGH);
+    }else{
+      digitalWrite(WarningInterruptpin, LOW);
+    }
+
+}
 
 
 //-----------------------------Setup & Loop-------------------------------------------------------
 void setup() {
   //Interrupt Service Routine 'UserWarning' attached to pin 2, triggers when pin is set High
   pinMode(WarningInterruptpin, OUTPUT);
-  pinMode(AudioWarningPin, OUTPUT);
+  pinMode(AudioWarningPin, INPUT);
   digitalWrite(WarningInterruptpin, LOW);
   digitalWrite(AudioWarningPin, LOW);
-  attachInterrupt(digitalPinToInterrupt(2), UserWarning ,HIGH);
+  attachInterrupt(WarningInterruptpin, UserWarning ,HIGH);
   
   
   Serial.begin(9600);
@@ -122,16 +156,17 @@ void setup() {
 
 void loop() 
 {
+  CheckwarningFlag();
 
   //Floats for Average Distance value for both US & IR.
   float AvrUS = 0; 
   float AvrIR = 0;
 
   if(ReadSensorsFlag == true){
-    for(int i=0; i<12; i++){
+    for(int i=0; i<20; i++){
       float USreading = US1.Tread();
-      //float IRAnalog = IR1.AreadIR();
-      float IRreading = IR1.readIR();
+      float IRreading = IR1.AreadIR();
+      //float IRreading = IR1.readIR();
       Serial.print("IR: ");
       Serial.println(IRreading);
       /*Serial.print("IR Analog Voltage Reading: ");
@@ -147,35 +182,16 @@ void loop()
     AvrIR  = myRA_b.getAverage();
     //FirstQueue(); 
   }
-  /*else{
+  else{
     AvrUS = myRA_a.getAverage();
     AvrIR  = myRA_b.getAverage();
     SecondQueue();
-  }*/
-
-
-  while(AvrIR < Threshold || AvrUS < Threshold){
-    int timer1 = millis();
-    //Get Time
-    //If values are greater than Threshold for more than X amount of time trigger the ISR.
-    //for loop?
-    Warningflag = true;
-      //Serial.println("Distance Threshold Exceeded!!!");
-      //digitalWrite(WarningInterruptpin, HIGH);
-    
-    //digitalWrite(WarningInterruptpin, LOW);
-
-  }
-  
-  if(Warningflag = true){
-    Serial.println("Distance Threshold Exceeded!!!");
-    digitalWrite(WarningInterruptpin, HIGH);
-  }else{
-    digitalWrite(WarningInterruptpin, LOW);
   }
 
-  
-  
+
+  if(AvrIR < Threshold || AvrUS < Threshold){
+    UserWarning();
+  }
 
   Serial.print("Average IR & US:  ");
   Serial.print(AvrIR);
@@ -184,5 +200,5 @@ void loop()
   /*Serial.print("Threshold:  ");
   Serial.println(Threshold);*/
   delay(3000);
-//-----------------------------------Loop() END.
+//---------------------------------------------Loop() END.---------------------------------
 }
