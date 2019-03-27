@@ -15,19 +15,22 @@ Date of last modification:    20/03/2019.
 //const int irsense = A0;
 //const int trigPin =11;   (Yellow)
 //const int echoPin =12;   (Blue)
-//const int BtTx = 1;      (Blue)
-//const int BtRx = 0;      (Yellow)
+//const int BtTx = 1;      (Green)
+//const int BtRx = 0;      (White)
+
 
 //Running Average Library, used for Buffer implementation.
-RunningAverage myRA_a(10);
-RunningAverage myRA_b(10);
-RunningAverage myRA_a1(10);
-RunningAverage myRA_b1(10);
+const int BufferLength = 20;
+RunningAverage myRA_a(BufferLength);
+RunningAverage myRA_b(BufferLength);
+RunningAverage myRA_a1(BufferLength);
+RunningAverage myRA_b1(BufferLength);
 uint32_t samples = 0;
 uint32_t samples2 = 0;
- 
+
+//Sensor Objects Instantiation  
 USsensor US1(11, 12);     //Instantiate USsensor class, define pin numbers.
-IRsensor IR1(A0);       //Instantiate IRsensor class, define pin numbers.
+IRsensor IR1(A0);         //Instantiate IRsensor class, define pin numbers.
 
 //Flag determines which RunningAverage queue to store readings in.
 volatile bool ReadSensorsFlag;
@@ -35,20 +38,26 @@ volatile bool ReadSensorsFlag;
 //Sets Digital pin 2 to trigger specific ISR on a HIGH value.
 //Digital pin 6 set to trigger LED/Buzzer Warning.
 const int WarningInterruptpin = 2;    //Unused external pin 
-const int AudioWarningPin = 1;        //Bluetooth module Tx pin(Connects to Nano)
-volatile bool Warningflag = false;
+const int AudioWarningPin = 6;        //Speaker pin
 
-//Defines Warning Threshold for warning the User.
+//Flags=====================================================================
+volatile bool Warningflag = false;  //When HIGH, Sends trigger signal to Nano Circuit
+
+bool IRsensorFlag = false;      //Set HIGH when AvrIR is less than Distance Threshold
+bool USsensorFlag = false;      //Set HIGH when AvrUS is less than Distance Threshold
+
+
+//Defines Distance Threshold for warning the User.
 static float Threshold;
 //Variables for ensuring noise spikes dont trigger warning.
+/*--------------------------------------------------------------------------
 float ThresRange; //Calculated as a fraction of Threshold value???
 float ThresCheckup = Threshold + ThresRange;
 float ThresCheckdn = Threshold - ThresRange;
+--------------------------------------------------------------------------*/
 
 void UserWarning(){
   noInterrupts();
-  
-
   //Method to warn user.
   //ISR for Digital Pin 2.
   digitalWrite(AudioWarningPin, HIGH);
@@ -58,16 +67,12 @@ void UserWarning(){
 void SetValues(){
   //Serial.println("Input a Threshold range");
   Threshold = 60;
-  ThresRange = 20;
+  //ThresRange = 20;
   Serial.print("Distance Threshold set to:  ");
   Serial.print(Threshold);
   Serial.println("CM.");
   ReadSensorsFlag = true;
 }
-
-
-
-
 
 void FirstQueue(){
 
@@ -137,9 +142,10 @@ void setup() {
   //Interrupt Service Routine 'UserWarning' attached to pin 2, triggers when pin is set High
   pinMode(WarningInterruptpin, OUTPUT);
   pinMode(AudioWarningPin, INPUT);
+ 
   digitalWrite(WarningInterruptpin, LOW);
   digitalWrite(AudioWarningPin, LOW);
-  attachInterrupt(WarningInterruptpin, UserWarning ,HIGH);
+  attachInterrupt(WarningInterruptpin, UserWarning ,HIGH);  //ISR assignment, triggered on HIGH, ISR = UserWarning.
   
   
   Serial.begin(9600);
@@ -156,11 +162,18 @@ void setup() {
 
 void loop() 
 {
-  CheckwarningFlag();
-
   //Floats for Average Distance value for both US & IR.
-  float AvrUS = 0; 
-  float AvrIR = 0;
+  float AvrUS; 
+  float AvrIR;
+  if(IRsensorFlag == true || USsensorFlag == true){
+
+    if(AvrIR < Threshold || AvrUS < Threshold){
+      UserWarning();
+    
+      CheckwarningFlag();
+    }
+}
+  
 
   if(ReadSensorsFlag == true){
     for(int i=0; i<20; i++){
@@ -178,7 +191,7 @@ void loop()
 
     }
 
-    AvrUS = myRA_a.getAverage();  //Changed to myRA_a from myRA_a1.
+    AvrUS = myRA_a.getAverage();    //Changed to myRA_a from myRA_a1.
     AvrIR  = myRA_b.getAverage();
     //FirstQueue(); 
   }
@@ -189,9 +202,7 @@ void loop()
   }
 
 
-  if(AvrIR < Threshold || AvrUS < Threshold){
-    UserWarning();
-  }
+  
 
   Serial.print("Average IR & US:  ");
   Serial.print(AvrIR);
