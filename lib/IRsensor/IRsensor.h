@@ -10,6 +10,7 @@ class IRsensor{
         IRsensor(int IRpin);
         float readIR();
         float AreadIR();
+        float formulaRead();
 
     private:
         int _IRpin;

@@ -1,6 +1,8 @@
 
 #include <IRsensor.h>
 #include <Arduino.h>
+#include <math.h>
+#include <RunningAverage.h>
 
 //#include "/Users/luke/Downloads/Documents/PlatformIO/Projects/FYP/lib/IRsensor/distance.ino"
 //#include <voltage.ino>
@@ -10,109 +12,11 @@ int _IRpin;
 float IRdistance;
 //extern float voltage[];
 //extern float distance[];
-float distance[] = {
-    70,
-    80,
-    90,
-    100,
-    110,
-    120,
-    130,
-    140,
-    150,
-    160,
-    170,
-    180,
-    190,
-    200,
-    210,
-    220,
-    230,
-    240,
-    250,
-    260,
-    270,
-    280,
-    290,
-    300,
-    310,
-    320,
-    330,
-    340,
-    350,
-    360,
-    370,
-    380,
-    390,
-    400,
-    410,
-    420,
-    430,
-    440,
-    450,
-    460,
-    470,
-    480,
-    490,
-    500,
-    510,
-    520,
-    530,
-    540,
-    550
-};
 
-float voltage[] = {
-    2.9345703125, 
-    2.67578125, 
-    2.548828125, 
-    2.3486328125, 
-    2.2216796875, 
-    2.1337890625, 
-    2.0751953125, 
-    2.041015625, 
-    2.01171875, 
-    1.97265625, 
-    1.923828125, 
-    1.865234375, 
-    1.8115234375, 
-    1.767578125, 
-    1.728515625, 
-    1.7138671875, 
-    1.6748046875, 
-    1.66015625, 
-    1.62109375, 
-    1.6015625, 
-    1.58203125, 
-    1.5625, 
-    1.5478515625, 
-    1.5283203125, 
-    1.5087890625, 
-    1.4892578125, 
-    1.484375, 
-    1.4794921875, 
-    1.474609375, 
-    1.46484375, 
-    1.4501953125, 
-    1.4404296875, 
-    1.42578125, 
-    1.416015625, 
-    1.40625, 
-    1.396484375, 
-    1.3916015625, 
-    1.38671875, 
-    1.376953125, 
-    1.3720703125, 
-    1.3623046875, 
-    1.357421875, 
-    1.3525390625, 
-    1.34765625, 
-    1.3427734375, 
-    1.337890625, 
-    1.3330078125, 
-    1.318359375, 
-    1.3134765625, 
-};
+RunningAverage IRBuffer(20);
+
+
+
 
 IRsensor::IRsensor(int IRpin){
 
@@ -120,6 +24,37 @@ IRsensor::IRsensor(int IRpin){
     _IRpin = IRpin;
 
 };
+
+float IRsensor::formulaRead(){
+    float Fdistance;
+    float read = analogRead(_IRpin);
+
+    for(int i=0;i<20;i++){
+       
+        IRBuffer.addValue(read);
+
+    }
+    float x = IRBuffer.getAverage();
+    IRBuffer.clear();
+
+    /*Equation Coefficients */
+    float a = /*+*/ 0.00064;
+    float b = /*-*/ 0.06628;
+    float c = /*+*/ 2.2824;
+    float d = /*-*/ 34.4338;
+    float e = /*+*/ 558.604;
+    /*X values    */
+    float x4 = a*pow(x,4);
+    float x3 = b*pow(x,3);
+    float x2 = c*pow(x,2);
+    float x1 = d*pow(x,1);
+
+    Fdistance = ((x4)-(x3)+(x2)-(x1)-e)/100000;
+    
+
+    return Fdistance;
+   // Fdistance = pow(a,x) -0.06628*x^3 +2.2824*x^2 -34.4338*x +558.604;
+}
 
 float IRsensor::AreadIR(){
     IRdistance = analogRead(_IRpin);

@@ -178,13 +178,13 @@ void loop()
   if(ReadSensorsFlag == true){
     for(int i=0; i<20; i++){
       float USreading = US1.Tread();
-      float IRreading = IR1.AreadIR();
+      float IRreading = IR1.formulaRead();
       //float IRreading = IR1.readIR();
+      
       Serial.print("IR: ");
       Serial.println(IRreading);
-      /*Serial.print("IR Analog Voltage Reading: ");
-      Serial.println(IRAnalog);*/
       myRA_b.addValue(IRreading);
+
       Serial.print("US: ");
       Serial.println(USreading);
       myRA_a.addValue(USreading);
