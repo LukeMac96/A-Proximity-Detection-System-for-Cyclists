@@ -25,18 +25,21 @@ IRsensor::IRsensor(int IRpin){
 
 };
 
-float IRsensor::formulaRead(){
-    float Fdistance;
-    float read = analogRead(_IRpin);
+double IRsensor::formulaRead(){
+    double Fdistance;
 
     for(int i=0;i<20;i++){
-       
+        
+        float read = analogRead(_IRpin);
+        delayMicroseconds(200);
         IRBuffer.addValue(read);
 
     }
     float x = IRBuffer.getAverage();
     IRBuffer.clear();
+    //float x = analogRead(_IRpin);
 
+    float z = 100000.00;
     /*Equation Coefficients */
     float a = /*+*/ 0.00064;
     float b = /*-*/ 0.06628;
@@ -44,12 +47,20 @@ float IRsensor::formulaRead(){
     float d = /*-*/ 34.4338;
     float e = /*+*/ 558.604;
     /*X values    */
-    float x4 = a*pow(x,4);
-    float x3 = b*pow(x,3);
-    float x2 = c*pow(x,2);
-    float x1 = d*pow(x,1);
+    float x4 = pow(x,4);
+    float x3 = pow(x,3);
+    float x2 = pow(x,2);
+    
+    double ax4 = (a*x4);
+    double bx3 = (b*x3);
+    double cx2 = (c*x2);
+    double dx1 = (d*x);
+    
+    
+    
 
-    Fdistance = ((x4)-(x3)+(x2)-(x1)-e)/100000;
+    Fdistance = (ax4-bx3+cx2-dx1+e)/z;
+    //Fdistance = Fdistance/1000;
     
 
     return Fdistance;

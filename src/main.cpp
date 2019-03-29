@@ -180,7 +180,7 @@ void loop()
       float USreading = US1.Tread();
       float IRreading = IR1.formulaRead();
       //float IRreading = IR1.readIR();
-      
+
       Serial.print("IR: ");
       Serial.println(IRreading);
       myRA_b.addValue(IRreading);
@@ -211,5 +211,7 @@ void loop()
   /*Serial.print("Threshold:  ");
   Serial.println(Threshold);*/
   delay(3000);
+  myRA_a.clear();
+  myRA_b.clear();
 //---------------------------------------------Loop() END.---------------------------------
 }
