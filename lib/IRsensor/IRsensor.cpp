@@ -39,7 +39,7 @@ double IRsensor::formulaRead(){
     IRBuffer.clear();
     //float x = analogRead(_IRpin);
 
-    float z = 100000.00;
+    float z = 1000.00;
     /*Equation Coefficients */
     float a = /*+*/ 0.00064;
     float b = /*-*/ 0.06628;

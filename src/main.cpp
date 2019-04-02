@@ -10,7 +10,6 @@ L.MACREDMOND1@nuigalway.ie
 Date of last modification:    20/03/2019.
 */
 
-
 //Pin Layout
 //const int irsense = A0;
 //const int trigPin =11;   (Yellow)
@@ -18,22 +17,24 @@ Date of last modification:    20/03/2019.
 //const int BtTx = 1;      (Green)
 //const int BtRx = 0;      (White)
 
-
 //Running Average Library, used for Buffer implementation.
 const int BufferLength = 20;
 RunningAverage myRA_a(BufferLength);
 RunningAverage myRA_b(BufferLength);
 RunningAverage myRA_a1(BufferLength);
 RunningAverage myRA_b1(BufferLength);
-uint32_t samples = 0;
-uint32_t samples2 = 0;
+
 
 //Sensor Objects Instantiation  
 USsensor US1(11, 12);     //Instantiate USsensor class, define pin numbers.
 IRsensor IR1(A0);         //Instantiate IRsensor class, define pin numbers.
+float AvrUS = 0; 
+float AvrIR = 0;
 
 //Flag determines which RunningAverage queue to store readings in.
 volatile bool ReadSensorsFlag;
+volatile bool IRsensorFlag;      //Set HIGH when AvrIR is less than Distance Threshold
+bool USsensorFlag;      //Set HIGH when AvrUS is less than Distance Threshold
 
 //Sets Digital pin 2 to trigger specific ISR on a HIGH value.
 //Digital pin 6 set to trigger LED/Buzzer Warning.
@@ -43,116 +44,43 @@ const int AudioWarningPin = 6;        //Speaker pin
 //Flags=====================================================================
 volatile bool Warningflag = false;  //When HIGH, Sends trigger signal to Nano Circuit
 
-bool IRsensorFlag = false;      //Set HIGH when AvrIR is less than Distance Threshold
-bool USsensorFlag = false;      //Set HIGH when AvrUS is less than Distance Threshold
+
 
 
 //Defines Distance Threshold for warning the User.
 static float Threshold;
-//Variables for ensuring noise spikes dont trigger warning.
-/*--------------------------------------------------------------------------
-float ThresRange; //Calculated as a fraction of Threshold value???
-float ThresCheckup = Threshold + ThresRange;
-float ThresCheckdn = Threshold - ThresRange;
---------------------------------------------------------------------------*/
 
-void UserWarning(){
-  noInterrupts();
-  //Method to warn user.
-  //ISR for Digital Pin 2.
-  digitalWrite(AudioWarningPin, HIGH);
-}
+//Defines which set of Queues to add values to
+bool queue = true;
 
 //Method called from Setup(), prompts user to define Distance Thrshold.
 void SetValues(){
   //Serial.println("Input a Threshold range");
-  Threshold = 60;
-  //ThresRange = 20;
+  Threshold = 70;
   Serial.print("Distance Threshold set to:  ");
   Serial.print(Threshold);
   Serial.println("CM.");
   ReadSensorsFlag = true;
-}
-
-void FirstQueue(){
-
-  myRA_a.addValue(US1.Tread());
-  myRA_b.addValue(IR1.readIR());
-  samples++;
-
-  if(samples >= 20){
-    samples = 0;
-    myRA_a.clear();
-    myRA_b.clear();
-
-    ReadSensorsFlag = false;
-  }
-
-}
-void SecondQueue(){
-
-  myRA_a1.addValue(US1.Tread());
-  myRA_b1.addValue(IR1.readIR());
-  samples2++;
-
-  if (samples2 >= 20){
-    samples2 = 0;
-    myRA_a1.clear();
-    myRA_b1.clear();
-
-    ReadSensorsFlag = true;
-  }
-
-}
-/*----------------------------New Method-------------------------------*/
-void CheckwarningFlag(){
-  unsigned long timer1 = millis();
-
-    // if(ThresCheckup>= AvrIR && ThresCheckup>=AvrUS){
-        if((millis()-timer1) > 500){
-          timer1 = millis();
-
-          Warningflag = true;
-
-
-        }else{
-          Warningflag = false;
-        }
-      
-      //Get Time
-      //If values are greater than Threshold for more than X amount of time trigger the ISR.
-      //for loop?
-      //Warningflag = true;
-        //Serial.println("Distance Threshold Exceeded!!!");
-        //digitalWrite(WarningInterruptpin, HIGH);
-      
-      //digitalWrite(WarningInterruptpin, LOW);
-      if(Warningflag == true){
-      Serial.println("Distance Threshold Exceeded!!!");
-      digitalWrite(WarningInterruptpin, HIGH);
-    }else{
-      digitalWrite(WarningInterruptpin, LOW);
-    }
-
+  //Clear Running Average queues
+  myRA_a.clear();
+  myRA_b.clear();
+  myRA_a1.clear();
+  myRA_b1.clear();
+  //Set Threshold flags low
+  IRsensorFlag = false;
+  USsensorFlag = false;
 }
 
 
 //-----------------------------Setup & Loop-------------------------------------------------------
 void setup() {
-  //Interrupt Service Routine 'UserWarning' attached to pin 2, triggers when pin is set High
-  pinMode(WarningInterruptpin, OUTPUT);
-  pinMode(AudioWarningPin, INPUT);
- 
-  digitalWrite(WarningInterruptpin, LOW);
+
+  pinMode(AudioWarningPin, OUTPUT); 
   digitalWrite(AudioWarningPin, LOW);
-  attachInterrupt(WarningInterruptpin, UserWarning ,HIGH);  //ISR assignment, triggered on HIGH, ISR = UserWarning.
-  
-  
+  //attachInterrupt(WarningInterruptpin, UserWarning ,HIGH);  //ISR assignment, triggered on HIGH, ISR = UserWarning.
+   
   Serial.begin(9600);
-  myRA_a.clear();
-  myRA_b.clear();
-  myRA_a1.clear();
-  myRA_b1.clear();
+ 
   Serial.println("Device Powered On.");
   delay(1000);
   SetValues();
@@ -160,50 +88,134 @@ void setup() {
 //-----------------------------------Setup() END.
 }
 
+
+void AddValues(bool queue){
+  if(queue == true){
+    //Queue 1
+    for(int i=0; i<BufferLength; i++){
+      float USreading = US1.Tread();
+      float IRreading = IR1.formulaRead();
+      
+      Serial.println("Adding Sensor readings");
+      myRA_a.addValue(IRreading);
+      myRA_b.addValue(USreading);
+
+      Serial.print("IR: ");
+      Serial.println(IRreading);
+      
+      Serial.print("US: ");
+      Serial.println(USreading);
+
+
+    }
+
+  }else{
+    //Queue 2
+    for(int i=0; i<BufferLength; i++){
+      float USreading = US1.Tread();
+      float IRreading = IR1.formulaRead();
+      
+      Serial.println("Adding Sensor readings");
+      myRA_a1.addValue(IRreading);
+      myRA_b1.addValue(USreading);
+
+      Serial.print("IR: ");
+      Serial.println(IRreading);
+      
+      Serial.print("US: ");
+      Serial.println(USreading);
+    }
+
+  }
+}
+
+
 void loop() 
 {
   //Floats for Average Distance value for both US & IR.
   float AvrUS; 
   float AvrIR;
-  if(IRsensorFlag == true || USsensorFlag == true){
 
-    if(AvrIR < Threshold || AvrUS < Threshold){
-      UserWarning();
-    
-      CheckwarningFlag();
+  //Two while loops check if the Averaged sensor readings are below the Threshold 
+  if(AvrIR > 0 || AvrUS > 0){
+
+    if(AvrIR <= Threshold){
+      IRsensorFlag = false;
     }
-}
-  
+    if(AvrUS <= Threshold){
+      USsensorFlag = true;
+    }
+  }
 
-  if(ReadSensorsFlag == true){
-    for(int i=0; i<20; i++){
+  if(queue == true){
+    //Queue 1
+    for(int i=0; i<BufferLength; i++){
       float USreading = US1.Tread();
       float IRreading = IR1.formulaRead();
-      //float IRreading = IR1.readIR();
+      
+      myRA_a.addValue(IRreading);
+      myRA_b.addValue(USreading);
 
       Serial.print("IR: ");
       Serial.println(IRreading);
-      myRA_b.addValue(IRreading);
-
+      
       Serial.print("US: ");
       Serial.println(USreading);
-      myRA_a.addValue(USreading);
-
     }
-
-    AvrUS = myRA_a.getAverage();    //Changed to myRA_a from myRA_a1.
+    //First Queues, Get the Average value of the 20 element Running Average
+    AvrUS = myRA_a.getAverage();    
     AvrIR  = myRA_b.getAverage();
-    //FirstQueue(); 
-  }
-  else{
-    AvrUS = myRA_a.getAverage();
-    AvrIR  = myRA_b.getAverage();
-    SecondQueue();
+    //Clear First Queues after Average is assigned to AvrUS & AvrIR
+    myRA_a.clear();
+    myRA_b.clear();
+    queue = !queue; //Change which queue is used for sensor values
+
+  }else{
+    //Queue 2
+    for(int i=0; i<BufferLength; i++){
+      float USreading = US1.Tread();
+      float IRreading = IR1.formulaRead();
+      
+      myRA_a1.addValue(IRreading);
+      myRA_b1.addValue(USreading);
+
+      Serial.print("IR: ");
+      Serial.println(IRreading);
+      
+      Serial.print("US: ");
+      Serial.println(USreading);
+    }
+    //Second Queues, Get the Average value of the 20 element Running Average
+    AvrUS = myRA_a1.getAverage();
+    AvrIR = myRA_b1.getAverage();
+    //Clear Second Queues after Average is assigned to AvrUS & AvrIR
+    myRA_a1.clear();
+    myRA_b1.clear();
+
+    queue = !queue; //Change which queue is used for sensor values
   }
 
+  //If Sensor Threshold flags are set 
+  if(IRsensorFlag == true || USsensorFlag == true){
 
+    //Double check Averaged values
+    if(AvrIR < Threshold || AvrUS < Threshold)
+    {
+      //Tone Function generates a 500 Hertz PWM signal
+      //Audio warning signal
+      tone(AudioWarningPin, 500);
+    }
+    //If Averaged values are above Threshold reset flags low  
+    else if(AvrIR < Threshold){
+      noTone(AudioWarningPin);
+      IRsensorFlag = false;
+    }
+    else if(AvrUS < Threshold){
+      noTone(AudioWarningPin);
+      USsensorFlag = false;
+    }
+  }
   
-
   Serial.print("Average IR & US:  ");
   Serial.print(AvrIR);
   Serial.print(", ");
@@ -211,7 +223,6 @@ void loop()
   /*Serial.print("Threshold:  ");
   Serial.println(Threshold);*/
   delay(3000);
-  myRA_a.clear();
-  myRA_b.clear();
+  
 //---------------------------------------------Loop() END.---------------------------------
 }
