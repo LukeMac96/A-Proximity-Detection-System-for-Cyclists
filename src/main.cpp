@@ -136,22 +136,12 @@ void loop()
   float AvrUS; 
   float AvrIR;
 
-  //Two while loops check if the Averaged sensor readings are below the Threshold 
-  if(AvrIR > 0 || AvrUS > 0){
-
-    if(AvrIR <= Threshold){
-      IRsensorFlag = false;
-    }
-    if(AvrUS <= Threshold){
-      USsensorFlag = true;
-    }
-  }
-
+//Read Sensors
   if(queue == true){
     //Queue 1
     for(int i=0; i<BufferLength; i++){
-      float USreading = US1.Tread();
-      float IRreading = IR1.formulaRead();
+      float USreading = IR1.formulaRead();
+      float IRreading = IR1.POWRead();
       
       myRA_a.addValue(IRreading);
       myRA_b.addValue(USreading);
@@ -173,8 +163,8 @@ void loop()
   }else{
     //Queue 2
     for(int i=0; i<BufferLength; i++){
-      float USreading = US1.Tread();
-      float IRreading = IR1.formulaRead();
+      float USreading = IR1.formulaRead();//US1.Tread();
+      float IRreading = IR1.POWRead();
       
       myRA_a1.addValue(IRreading);
       myRA_b1.addValue(USreading);
@@ -195,6 +185,18 @@ void loop()
     queue = !queue; //Change which queue is used for sensor values
   }
 
+    //Two while loops check if the Averaged sensor readings are below the Threshold 
+  if(AvrIR > 0 || AvrUS > 0){
+
+    if(AvrIR <= Threshold){
+      IRsensorFlag = false;
+    }
+    if(AvrUS <= Threshold){
+      USsensorFlag = true;
+    }
+  }
+
+
   //If Sensor Threshold flags are set 
   if(IRsensorFlag == true || USsensorFlag == true){
 
@@ -204,10 +206,12 @@ void loop()
       //Tone Function generates a 500 Hertz PWM signal
       //Audio warning signal
       tone(AudioWarningPin, 500);
+      digitalWrite(WarningInterruptpin, HIGH);
     }
     //If Averaged values are above Threshold reset flags low  
     else if(AvrIR < Threshold){
       noTone(AudioWarningPin);
+      digitalWrite(WarningInterruptpin, LOW);
       IRsensorFlag = false;
     }
     else if(AvrUS < Threshold){
