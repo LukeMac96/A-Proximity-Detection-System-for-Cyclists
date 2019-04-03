@@ -14,15 +14,6 @@ USsensor::USsensor(int trigpin, int echopin){
     _echopin = echopin;
 
 }
-void Trigger(){
-
-    digitalWrite(_trigpin, LOW);
-    delayMicroseconds(2);
-
-    digitalWrite(_trigpin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(_trigpin, LOW);
-}
 
 float USsensor::Tread()
 {

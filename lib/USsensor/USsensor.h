@@ -8,8 +8,7 @@ class USsensor{
 
     public:
         USsensor(int trigpin, int echopin);
-        //int Smoothing();
-        
+       
         float Tread();
 
     private:

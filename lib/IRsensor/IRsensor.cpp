@@ -4,15 +4,9 @@
 #include <math.h>
 #include <RunningAverage.h>
 
-//#include "/Users/luke/Downloads/Documents/PlatformIO/Projects/FYP/lib/IRsensor/distance.ino"
-//#include <voltage.ino>
-
 
 int _IRpin;
 float IRdistance;
-//extern float voltage[];
-//extern float distance[];
-
 RunningAverage IRBuffer(10);
 RunningAverage PowBuffer(10);
 
@@ -36,9 +30,8 @@ float IRsensor::formulaRead(){
     IRBuffer.clear();
    
 
-//y = 0.0004x4 - 0.0417x3 + 1.6143x2 - 28.393x + 546.19
+    //y = 0.0004x4 - 0.0417x3 + 1.6143x2 - 28.393x + 546.19
 
-    //float z = 10000.00;
     /*Equation Coefficients */
     float a = /*+*/ 0.0004;
     float b = /*-*/ 0.0417;
@@ -54,9 +47,6 @@ float IRsensor::formulaRead(){
     Fdistance = (x4-x3+x2-x1+e);
     
     return Fdistance;
-    //y = 0.0007x4 - 0.074x3 + 2.5337x2 - 37.406x + 567.72
-
-   // Fdistance = pow(a,x) -0.06628*x^3 +2.2824*x^2 -34.4338*x +558.604;
 }
 
 float IRsensor::POWRead(){
@@ -67,20 +57,24 @@ float IRsensor::POWRead(){
         float read2 = analogRead(_IRpin);
         delayMicroseconds(200);
         PowBuffer.addValue(read2);
-
     }
     float x1 = PowBuffer.getAverage();
     PowBuffer.clear();
-
-    //Run1  y = 550.72x-0.152
-    //Run2  y = 540.74x-0.145
-    //Run3  y = 550.45x-0.153
-    //Run4  
-
+        /*
+        Run 1 y = 550.72x^-0.152
+        Run 2 y = 540.74x^-0.145   
+        Run 3 y = 550.45x^-0.153
+        Run 4 y= 534.32 x^-0.136
+        Run 5 y= 542.1 x^-0.147
+        Run 6 y= 542.85 x^-0.147
+        Run 7 y= 550.13 x^-0.154
+        Run 8 y= 550.13 x^-0.154
+        Run 9 y= 543.50 x^ -0.15
+        Run 10 y= 569.58 x^-0.157
+        */
     float p = -0.15;
     float expow = pow(x1,p);
     POWDistance = 547*expow;
-
 
     return POWDistance;
 }

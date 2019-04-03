@@ -20,9 +20,9 @@ Date of last modification:    20/03/2019.
 //Running Average Library, used for Buffer implementation.
 const int BufferLength = 10;
 RunningAverage myRA_a(BufferLength);
-RunningAverage myRA_b(10);
+RunningAverage myRA_b(BufferLength);
 RunningAverage myRA_a1(BufferLength);
-RunningAverage myRA_b1(10);
+RunningAverage myRA_b1(BufferLength);
 
 
 //Sensor Objects Instantiation  
