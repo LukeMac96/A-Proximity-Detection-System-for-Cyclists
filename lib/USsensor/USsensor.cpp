@@ -26,7 +26,6 @@ void Trigger(){
 
 float USsensor::Tread()
 {
-    
     digitalWrite(_trigpin, LOW);
     delayMicroseconds(2);
 
@@ -34,15 +33,9 @@ float USsensor::Tread()
     delayMicroseconds(10);
     digitalWrite(_trigpin, LOW);
     delayMicroseconds(200);
+
     duration = pulseIn(_echopin, HIGH);
     USdistance = duration*0.034/2;
-
-    if(USdistance > 3000){
-        Trigger();
-        delayMicroseconds(200);
-        duration = pulseIn(_echopin, HIGH);
-        USdistance = duration*0.034/2;
-    }
 
     return USdistance;
 }

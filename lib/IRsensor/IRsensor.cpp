@@ -31,31 +31,28 @@ float IRsensor::formulaRead(){
         float read = analogRead(_IRpin);
         delayMicroseconds(200);
         IRBuffer.addValue(read);
-
     }
     float x = IRBuffer.getAverage();
     IRBuffer.clear();
-    //float x = analogRead(_IRpin);
+   
 
-    float z = 10000.00;
+//y = 0.0004x4 - 0.0417x3 + 1.6143x2 - 28.393x + 546.19
+
+    //float z = 10000.00;
     /*Equation Coefficients */
-    float a = /*+*/ 0.00064;
-    float b = /*-*/ 0.06628;
-    float c = /*+*/ 2.2824;
-    float d = /*-*/ 34.4338;
-    float e = /*+*/ 558.604;
+    float a = /*+*/ 0.0004;
+    float b = /*-*/ 0.0417;
+    float c = /*+*/ 1.6143;
+    float d = /*-*/ 28.393;
+    float e = /*+*/ 546.19;
     /*X values    */
     float x4 = a*pow(x,4);
     float x3 = b*pow(x,3);
     float x2 = c*pow(x,2);
-    
-    float ax4 = (a*x4);
-    float bx3 = (b*x3);
-    float cx2 = (c*x2);
-    float dx1 = (d*x);
+    float x1 = (d*x);
   
-    Fdistance = (x4-x3+x2-dx1+e);
-    //Fdistance = Fdistance/1000;
+    Fdistance = (x4-x3+x2-x1+e);
+    
     return Fdistance;
     //y = 0.0007x4 - 0.074x3 + 2.5337x2 - 37.406x + 567.72
 
@@ -65,7 +62,7 @@ float IRsensor::formulaRead(){
 float IRsensor::POWRead(){
     float POWDistance;
 
-    for(int i=0;i<10;i++){
+    for(int i=0;i<5;i++){
         
         float read2 = analogRead(_IRpin);
         delayMicroseconds(200);
@@ -75,9 +72,15 @@ float IRsensor::POWRead(){
     float x1 = PowBuffer.getAverage();
     PowBuffer.clear();
 
-    float p = -0.199;
+    //Run1  y = 550.72x-0.152
+    //Run2  y = 540.74x-0.145
+    //Run3  y = 550.45x-0.153
+    //Run4  
+
+    float p = -0.15;
     float expow = pow(x1,p);
-    POWDistance = 595.9*expow;
+    POWDistance = 547*expow;
+
 
     return POWDistance;
 }

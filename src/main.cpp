@@ -18,11 +18,11 @@ Date of last modification:    20/03/2019.
 //const int BtRx = 0;      (White)
 
 //Running Average Library, used for Buffer implementation.
-const int BufferLength = 20;
+const int BufferLength = 10;
 RunningAverage myRA_a(BufferLength);
-RunningAverage myRA_b(BufferLength);
+RunningAverage myRA_b(10);
 RunningAverage myRA_a1(BufferLength);
-RunningAverage myRA_b1(BufferLength);
+RunningAverage myRA_b1(10);
 
 
 //Sensor Objects Instantiation  
@@ -54,7 +54,7 @@ bool queue = true;
 //Method called from Setup(), prompts user to define Distance Thrshold.
 void SetValues(){
   //Serial.println("Input a Threshold range");
-  Threshold = 70;
+  Threshold = 150;
   Serial.print("Distance Threshold set to:  ");
   Serial.print(Threshold);
   Serial.println("CM.");
@@ -71,10 +71,10 @@ void SetValues(){
 
 void AddValues(bool queue){
   if(queue == true){
-    //Queue 1
+    
     for(int i=0; i<BufferLength; i++){
       float USreading = US1.Tread();
-      float IRreading = IR1.formulaRead();
+      float IRreading = IR1.POWRead();
       
       myRA_a.addValue(IRreading);
       myRA_b.addValue(USreading);
@@ -85,15 +85,24 @@ void AddValues(bool queue){
       Serial.print("US: ");
       Serial.println(USreading);
     }
+    queue = false;
     AvrIR = myRA_a.getAverage();
-    AvrUS = myRA_b.getAverage();
+    AvrUS = US1.Tread();
+    if(AvrIR < Threshold){
+      IRsensorFlag = true;
+
+    }else{noTone(AudioWarningPin);}
+    if(AvrUS <= Threshold){
+      USsensorFlag = true;
+
+    }else{noTone(AudioWarningPin);}
     myRA_a.clear();
     myRA_b.clear();
   }else{
-    //Queue 2
+
     for(int i=0; i<BufferLength; i++){
       float USreading = US1.Tread();
-      float IRreading = IR1.formulaRead();
+      float IRreading = IR1.POWRead();
       
       myRA_a1.addValue(IRreading);
       myRA_b1.addValue(USreading);
@@ -104,34 +113,49 @@ void AddValues(bool queue){
       Serial.print("US: ");
       Serial.println(USreading);
     }
+    queue = true;
     AvrIR = myRA_a1.getAverage();
-    AvrUS = myRA_b1.getAverage();
+    AvrUS = US1.Tread();
+    if(AvrIR < Threshold){
+      IRsensorFlag = true;
+
+    }else{noTone(AudioWarningPin);}
+    if(AvrUS <= Threshold){
+      USsensorFlag = true;
+
+    }else{noTone(AudioWarningPin);}
     myRA_a1.clear();
     myRA_b1.clear();
 
   }
 }
 
+
+
 void CheckVal(){
+
+  if(USsensorFlag == true || IRsensorFlag == true){
 
     //Double check Averaged values
     if(AvrIR < Threshold || AvrUS < Threshold)
     {
       //Tone Function generates a 500 Hertz PWM signal
       //Audio warning signal
-      tone(AudioWarningPin, 500);
+      tone(AudioWarningPin, 600);
       digitalWrite(WarningInterruptpin, HIGH);
     }
     //If Averaged values are above Threshold reset flags low  
-    else if(AvrIR < Threshold){
+    else if(AvrIR > Threshold){
       noTone(AudioWarningPin);
       digitalWrite(WarningInterruptpin, LOW);
       IRsensorFlag = false;
     }
-    else if(AvrUS < Threshold){
+    else if(AvrUS > Threshold){
       noTone(AudioWarningPin);
+      digitalWrite(WarningInterruptpin, LOW);
       USsensorFlag = false;
     }
+  }
 }
 
 
@@ -153,34 +177,33 @@ void setup() {
 
 
 void loop() {
+  noTone(AudioWarningPin);
+  CheckVal();
   
 
   AddValues(ReadSensorsFlag);
 
-    //Two while loops check if the Averaged sensor readings are below the Threshold 
-  if(AvrIR > 0 || AvrUS > 0){
-
-    if(AvrIR <= Threshold){
-      IRsensorFlag = false;
-    }
-    if(AvrUS <= Threshold){
-      USsensorFlag = true;
-    }
+    //Two if loops check if the Averaged sensor readings are below the Threshold 
+  if(AvrIR > Threshold){
+    IRsensorFlag = false;
   }
+  if(AvrUS > Threshold){
+    USsensorFlag = false;
+  }
+  
+  CheckVal();
 
-
-  //If Sensor Threshold flags are set 
+  /*If Sensor Threshold flags are set 
   if(IRsensorFlag == true || USsensorFlag == true){
     CheckVal();
   }
-    
+  */
     Serial.print("Average IR & US:  ");
     Serial.print(AvrIR);
     Serial.print(", ");
     Serial.println(AvrUS);
-    /*Serial.print("Threshold:  ");
-    Serial.println(Threshold);*/
-    delay(3000);
+    
+    delay(1000);
     
   //---------------------------------------------Loop() END.---------------------------------
 }
