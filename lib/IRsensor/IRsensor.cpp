@@ -13,11 +13,8 @@ float IRdistance;
 //extern float voltage[];
 //extern float distance[];
 
-RunningAverage IRBuffer(20);
-RunningAverage PowBuffer(20);
-
-
-
+RunningAverage IRBuffer(10);
+RunningAverage PowBuffer(10);
 
 IRsensor::IRsensor(int IRpin){
 
@@ -29,7 +26,7 @@ IRsensor::IRsensor(int IRpin){
 float IRsensor::formulaRead(){
     float Fdistance;
 
-    for(int i=0;i<20;i++){
+    for(int i=0;i<10;i++){
         
         float read = analogRead(_IRpin);
         delayMicroseconds(200);
@@ -57,7 +54,7 @@ float IRsensor::formulaRead(){
     float cx2 = (c*x2);
     float dx1 = (d*x);
   
-    Fdistance = (x4-x3+x2-dx1+e)/z;
+    Fdistance = (x4-x3+x2-dx1+e);
     //Fdistance = Fdistance/1000;
     return Fdistance;
     //y = 0.0007x4 - 0.074x3 + 2.5337x2 - 37.406x + 567.72
@@ -68,7 +65,7 @@ float IRsensor::formulaRead(){
 float IRsensor::POWRead(){
     float POWDistance;
 
-    for(int i=0;i<20;i++){
+    for(int i=0;i<10;i++){
         
         float read2 = analogRead(_IRpin);
         delayMicroseconds(200);
@@ -87,30 +84,5 @@ float IRsensor::POWRead(){
 
 float IRsensor::AreadIR(){
     IRdistance = analogRead(_IRpin);
-    return IRdistance;
-}
-
-float IRsensor::readIR(){
-
-    float v  = analogRead(_IRpin);
-    v = v/1024.0*5.0;
-    //int index = 0;
-
-/* https://github.com/weifengdq/Sharp_GP2Y0A  */
-    /*for(index = 0; index < 49; index++){
-        if(v >= voltage[index]){ 
-            break;
-        }
-    }
-    if(index == 0){
-        IRdistance = 70.0;
-    }else if(index == 49){
-        IRdistance = 550.0;
-    }else 
-    {
-        IRdistance = map(v, voltage[index], voltage[index -1], distance[index], distance[index -1]);
-    }*/
-    IRdistance = map(v, 0, 1024, 60, 550);
-
     return IRdistance;
 }
